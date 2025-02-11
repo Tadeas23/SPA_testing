@@ -1,11 +1,108 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <title>Simple Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #messages { max-width: 400px; margin: auto; padding: 10px; border: 1px solid #ccc; height: 300px; overflow-y: auto; }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
 </head>
 <body>
-    
+
+    <h2>Simple Chat</h2>
+
+    <div id="login-section">
+        <h3>Login</h3>
+        <input type="text" id="login-username" placeholder="Username" />
+        <input type="password" id="login-password" placeholder="Password" />
+        <button onclick="loginUser()">Login</button>
+    </div>
+
+    <div id="registration-section">
+        <h3>Register</h3>
+        <input type="text" id="register-username" placeholder="Username" />
+        <input type="password" id="register-password" placeholder="Password" />
+        <button onclick="registerUser()">Register</button>
+    </div>
+
+    <div id="chat-section" style="display: none;">
+        <h3>Chat</h3>
+        <div id="messages"></div>
+
+        <input type="text" id="message" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        async function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value.trim();
+            if (!username || !password) return alert("Enter a username and password!");
+
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                if (!res.ok) throw new Error('Registration failed');
+                alert("Registration successful!");
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            if (!username || !password) return alert("Enter a username and password!");
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                if (!res.ok) throw new Error('Login failed');
+                currentUser = username;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('registration-section').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                loadMessages();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loadMessages() {
+            const res = await fetch('/messages');
+            const messages = await res.json();
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = document.getElementById('message').value.trim();
+            if (!text || !currentUser) return alert("Enter a message and log in!");
+
+            await fetch('/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user: currentUser, text })
+            });
+
+            document.getElementById('message').value = "";
+            loadMessages();
+        }
+
+        setInterval(loadMessages, 1000); // Auto-refresh every second
+    </script>
+
 </body>
 </html>
