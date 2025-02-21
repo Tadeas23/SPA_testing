@@ -20,4 +20,16 @@ db.serialize(() => {
     `);
 });
 
+// Funkce pro získání seznamu tabulek
+db.serialize(() => {
+    db.all("SELECT name FROM sqlite_master WHERE type='table';", [], (err, tables) => {
+        if (err) {
+            console.error("Chyba při získávání tabulek:", err.message);
+        } else {
+            console.log("Tabulky v databázi:", tables);
+        }
+    });
+});
+
+
 module.exports = db; // Exportujeme db, abychom ji mohli použít v hlavním souboru

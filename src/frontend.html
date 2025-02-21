@@ -78,14 +78,40 @@
                 alert('Error: ' + error.message);
             }
         }
-
+        
         async function loadMessages() {
-            const res = await fetch('/messages');
-            const messages = await res.json();
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            try {
+                const res = await fetch('/messages');
+                if (!res.ok) throw new Error("Chyba při načítání zpráv");
+
+                const messages = await res.json();
+                if (!Array.isArray(messages)) {
+                    throw new Error("Zprávy nejsou ve správném formátu");
+                }
+
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // Posuneme zprávy dolů
+            } catch (error) {
+                console.error("Chyba při načítání zpráv:", error);
+            }
         }
+
+        // async function loadMessages() {
+        //     const res = await fetch('/messages');
+        //     const messages = await res.json();
+        //     const messagesDiv = document.getElementById('messages');
+        //     messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
+        //     messagesDiv.scrollTop = messagesDiv.scrollHeight; // Posuneme zprávy dolů
+        // }
+
+        // async function loadMessages() {
+        //     const res = await fetch('/messages');
+        //     const messages = await res.json();
+        //     const messagesDiv = document.getElementById('messages');
+        //     messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
+        //     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // }
 
         async function sendMessage() {
             const text = document.getElementById('message').value.trim();

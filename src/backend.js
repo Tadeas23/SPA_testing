@@ -46,6 +46,49 @@ app.post("/login", (req, res) => {
     });
 });
 
+// Endpoint pro získání zpráv
+app.get("/messages", (req, res) => {
+    db.all("SELECT * FROM messages ORDER BY timestamp ASC", [], (err, rows) => {
+        if (err) {
+            console.error("Chyba při získávání zpráv:", err);
+            return res.status(500).json({ error: "Chyba při získávání zpráv" });
+        }
+        res.json(rows); // Odeslání zpráv v JSON formátu
+    });
+});
+
+// Endpoint pro odeslání zpráv
+app.post("/messages", (req, res) => {
+    const { user, text } = req.body;
+    if (!user || !text) {
+        return res.status(400).json({ error: "User and message text are required" });
+    }
+
+    const timestamp = new Date().toISOString();
+    const sql = "INSERT INTO messages (user, text, timestamp) VALUES (?, ?, ?)";
+    db.run(sql, [user, text, timestamp], function (err) {
+        if (err) {
+            console.error("Chyba při ukládání zprávy:", err);
+            return res.status(500).json({ error: "Chyba při ukládání zprávy" });
+        }
+        res.status(201).json({ success: true });
+    });
+});
+
+// Zkontroluj, zda tabulka 'messages' existuje
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT,
+            text TEXT,
+            timestamp TEXT
+        )
+    `);
+});
+
+
+
 // Spuštění serveru
 app.listen(PORT, () => {
     console.log(`Chat server běží na http://localhost:${PORT}`);
