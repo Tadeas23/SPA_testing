@@ -30,6 +30,7 @@
 
     <div id="chat-section" style="display: none;">
         <h3>Chat</h3>
+        <button onclick="signOff()">sign off</button>
         <div id="messages"></div>
 
         <input type="text" id="message" placeholder="Type a message..." />
@@ -112,6 +113,13 @@
         //     messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
         //     messagesDiv.scrollTop = messagesDiv.scrollHeight;
         // }
+
+        async function signOff() {
+            currentUser = null; // Clear the current user session
+            document.getElementById('chat-section').style.display = 'none'; // Hide chat section
+            document.getElementById('login-section').style.display = 'block'; // Show login section
+            document.getElementById('registration-section').style.display = 'block'; // Show registration section
+        }
 
         async function sendMessage() {
             const text = document.getElementById('message').value.trim();
