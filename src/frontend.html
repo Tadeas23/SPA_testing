@@ -108,11 +108,28 @@
 
         let socket = new WebSocket("ws://localhost:3000");
 
+        socket.onopen = () => {
+            console.log("✅ WebSocket připojen!");
+        };
+
+        socket.onerror = (error) => {
+            console.error("❌ WebSocket chyba:", error);
+        };
+
+        socket.onclose = () => {
+            console.warn("⚠️ WebSocket byl uzavřen, zkusíme obnovit spojení...");
+            setTimeout(() => {
+                socket = new WebSocket("ws://localhost:3000"); // Automatické opětovné připojení
+            }, 3000);
+        };
+
         socket.onmessage = (event) => {
+            console.log("📩 Přijata zpráva přes WebSocket:", event.data); // Debug zprávy
+        
             const msgData = JSON.parse(event.data);
             const messagesDiv = document.getElementById('messages');
             messagesDiv.innerHTML += `<p><strong>${msgData.user}:</strong> ${msgData.text}</p>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Posune dolů k nejnovější zprávě
         };
 
         async function registerUser() {

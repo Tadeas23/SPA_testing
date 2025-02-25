@@ -54,13 +54,21 @@ wss.on("connection", (ws) => {
 
             // Rozeslání zprávy všem připojeným klientům
             wss.clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
+                if (client !== ws && client.readyState === WebSocket.OPEN) { // Neposíláme zpět odesílateli
                     client.send(JSON.stringify(msgData));
                 }
             });
         });
     });
+
+    // Po připojení pošleme historii zpráv
+    db.all("SELECT * FROM messages ORDER BY timestamp ASC", [], (err, rows) => {
+        if (!err && rows) {
+            rows.forEach(msg => ws.send(JSON.stringify(msg)));
+        }
+    });
 });
+
 
 
 // Přihlášení uživatele
