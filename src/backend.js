@@ -4,8 +4,13 @@ const cors = require("cors");
 const path = require("path");
 const db = require("./database"); // Import databáze
 
+const WebSocket = require("ws");
+const http = require("http");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 app.use(cors());
 app.use(express.json());
@@ -30,6 +35,33 @@ app.post("/register", (req, res) => {
         res.status(201).json({ success: true });
     });
 });
+
+wss.on("connection", (ws) => {
+    console.log("Nové WebSocket připojení");
+
+    ws.on("message", (message) => {
+        const msgData = JSON.parse(message);
+        console.log("Přijatá zpráva:", msgData);
+
+        // Uložení do databáze
+        const sql = "INSERT INTO messages (user, text, timestamp) VALUES (?, ?, ?)";
+        const timestamp = new Date().toISOString();
+        db.run(sql, [msgData.user, msgData.text, timestamp], (err) => {
+            if (err) {
+                console.error("Chyba při ukládání zprávy:", err);
+                return;
+            }
+
+            // Rozeslání zprávy všem připojeným klientům
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(msgData));
+                }
+            });
+        });
+    });
+});
+
 
 // Přihlášení uživatele
 app.post("/login", (req, res) => {
@@ -88,8 +120,7 @@ db.serialize(() => {
 });
 
 
-
 // Spuštění serveru
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Chat server běží na http://localhost:${PORT}`);
 });

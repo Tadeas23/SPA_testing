@@ -106,6 +106,15 @@
     <script>
         let currentUser = null;
 
+        let socket = new WebSocket("ws://localhost:3000");
+
+        socket.onmessage = (event) => {
+            const msgData = JSON.parse(event.data);
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += `<p><strong>${msgData.user}:</strong> ${msgData.text}</p>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        };
+
         async function registerUser() {
             const username = document.getElementById('register-username').value.trim();
             const password = document.getElementById('register-password').value.trim();
@@ -184,17 +193,13 @@
             const text = document.getElementById('message').value.trim();
             if (!text || !currentUser) return alert("Enter a message and log in!");
 
-            await fetch('/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user: currentUser, text })
-            });
+            const msgData = { user: currentUser, text };
+            socket.send(JSON.stringify(msgData)); // Odeslání přes WebSocket
+
 
             document.getElementById('message').value = "";
             loadMessages();
         }
-
-        setInterval(loadMessages, 1000); // Auto-refresh every second
     </script>
 
 </body>
