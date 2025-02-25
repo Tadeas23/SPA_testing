@@ -1,40 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat</title>
+    <title>Chat Aplikace</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #messages { max-width: 400px; margin: auto; padding: 10px; border: 1px solid #ccc; height: 300px; overflow-y: auto; }
-        input, button { padding: 10px; margin: 5px; }
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        margin-top: 20px;
+        color: #333;
+    }
+
+    #login-section, #registration-section, #chat-section {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #messages {
+        max-width: 100%;
+        height: 300px;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background: #fff;
+        border-radius: 5px;
+        overflow-y: auto;
+        text-align: left;
+    }
+
+    #messages p {
+        background: #e9ecef;
+        padding: 8px;
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+
+    #messages p strong {
+        color: #007bff;
+    }
     </style>
 </head>
 <body>
 
-    <h2>Simple Chat</h2>
+    <h2>Chat Aplikace</h2>
 
     <div id="login-section">
-        <h3>Login</h3>
+        <h3>Přihlášení</h3>
         <input type="text" id="login-username" placeholder="Username" />
         <input type="password" id="login-password" placeholder="Password" />
-        <button onclick="loginUser()">Login</button>
+        <button onclick="loginUser()">Přihlásit</button>
     </div>
 
     <div id="registration-section">
-        <h3>Register</h3>
+        <h3>Registrace</h3>
         <input type="text" id="register-username" placeholder="Username" />
         <input type="password" id="register-password" placeholder="Password" />
-        <button onclick="registerUser()">Register</button>
+        <button onclick="registerUser()">Registrovat</button>
     </div>
 
     <div id="chat-section" style="display: none;">
         <h3>Chat</h3>
-        <button onclick="signOff()">sign off</button>
+        <button onclick="signOff()">Odhlásit se</button>
         <div id="messages"></div>
 
         <input type="text" id="message" placeholder="Type a message..." />
-        <button onclick="sendMessage()">Send</button>
+        <button onclick="sendMessage()">Poslat</button>
     </div>
 
     <script>
@@ -98,28 +164,21 @@
             }
         }
 
-        // async function loadMessages() {
-        //     const res = await fetch('/messages');
-        //     const messages = await res.json();
-        //     const messagesDiv = document.getElementById('messages');
-        //     messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
-        //     messagesDiv.scrollTop = messagesDiv.scrollHeight; // Posuneme zprávy dolů
-        // }
-
-        // async function loadMessages() {
-        //     const res = await fetch('/messages');
-        //     const messages = await res.json();
-        //     const messagesDiv = document.getElementById('messages');
-        //     messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.user}:</strong> ${msg.text}</p>`).join('');
-        //     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        // }
-
         async function signOff() {
             currentUser = null; // Clear the current user session
             document.getElementById('chat-section').style.display = 'none'; // Hide chat section
             document.getElementById('login-section').style.display = 'block'; // Show login section
             document.getElementById('registration-section').style.display = 'block'; // Show registration section
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('message').addEventListener('keydown', function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevents new line in input
+                    sendMessage();
+                }
+            });
+        });
 
         async function sendMessage() {
             const text = document.getElementById('message').value.trim();
