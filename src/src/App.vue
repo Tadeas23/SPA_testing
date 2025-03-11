@@ -1,30 +1,38 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from "vue";
+import LoginForm from "./components/LoginForm.vue";
+import RegisterForm from "./components/RegisterForm.vue";
+import ChatRoom from "./components/ChatRoom.vue";
+
+// Stav pro sledování aktuálního uživatele
+const currentUser = ref(null);
+
+const handleLogin = (username) => {
+  currentUser.value = username;
+};
+const handleLogout = () => {
+  currentUser.value = null;
+};
 </script>
 
 <template>
   <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <h2>Chat Aplikace</h2>
+
+    <!-- Pokud uživatel není přihlášený, zobrazí se login a registrace -->
+    <div v-if="!currentUser">
+      <LoginForm @login="handleLogin" />
+      <RegisterForm />
+    </div>
+
+    <!-- Pokud je uživatel přihlášený, zobrazí se chatovací místnost -->
+    <ChatRoom v-if="currentUser" :user="currentUser" @logout="handleLogout" />
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+h2 {
+  text-align: center;
+  color: #007bff;
 }
 </style>
