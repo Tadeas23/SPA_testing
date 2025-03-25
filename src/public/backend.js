@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const db = require("./database"); // Databáze je v kořenové složce
+const db = require("../database"); // Databáze je v kořenové složce
 const WebSocket = require("ws");
 const http = require("http");
 
